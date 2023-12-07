@@ -11,12 +11,12 @@ import blocks.BlockFactory;
 
 public class Game extends Thread implements GameSetting {
 
-	private List<List<Boolean>> grid = (List<List<Boolean>>) Collections.synchronizedList(new ArrayList<List<Boolean>>(WIDTH_BLOCK_NUM));
+	private List<List<GridElement>> grid = (List<List<GridElement>>) Collections.synchronizedList(new ArrayList<List<GridElement>>(WIDTH_BLOCK_NUM));
 	{
 		for(int i = 0; i<WIDTH_BLOCK_NUM;i++) {
-			grid.add((List<Boolean>)(Collections.synchronizedList(new ArrayList<Boolean>(WIDTH_BLOCK_NUM))));
+			grid.add((List<GridElement>)(Collections.synchronizedList(new ArrayList<GridElement>(WIDTH_BLOCK_NUM))));
 			for(int j = 0; j <HEIGHT_BLOCK_NUM  ; j++) {
-				grid.get(i).add(false);
+				grid.get(i).add(new GridElement());
 			}
 		}
 	}
@@ -29,12 +29,12 @@ public class Game extends Thread implements GameSetting {
 
 	@Override
 	public void run() {
-		executor.submit(new NewBlock(this));
+		/*executor.submit(new NewBlock(this));
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
+		}*/
 		executor.submit(new BlockDrop(this));
 	}
 
@@ -61,32 +61,32 @@ public class Game extends Thread implements GameSetting {
 			for(int j = 0; j < area[i].length; j++) {
 				if(!area[i][j]) continue;
 				//grid[x+i][y+j]=true;
-				grid.get(x+i).set(y+j, true);
+				grid.get(x+i).get(y+j).occupy(block);
 			}
 		}
 	}
-	public List<List<Boolean>> getGrid() {
+	public List<List<GridElement>> getGrid() {
 		return grid;
 	}
 	
 	
 	
-	public void brakeLine() {
+	public void breakLine() {
 		for(int i = 0; i < HEIGHT_BLOCK_NUM; i++) {
 			boolean isLineFull = true;
 			for(int j = 0; j < WIDTH_BLOCK_NUM; j++) {
-				if(!grid.get(j).get(i)) {
+				if(!grid.get(j).get(i).isOccupied()) {
 					isLineFull = false;
 					break;
 				}
 			}
 			if(isLineFull) {
 				for(int j = 0; j < WIDTH_BLOCK_NUM; j++) {
-					grid.get(j).set(i,false);
+					grid.get(j).get(i).destroy();
 				}
 				for(int k = i; k >= 1; k--) {
 					for(int j = 0; j < WIDTH_BLOCK_NUM; j++) {
-						grid.get(j).set(k, grid.get(j).get(k-1));
+						grid.get(j).get(k).copy(grid.get(j).get(k-1)); //clone을 해야함.
 					}
 				}
 			}
@@ -97,24 +97,26 @@ public class Game extends Thread implements GameSetting {
 
 class BlockDrop implements Runnable, GameSetting {
 	private Game game;
-
+	private BlockFactory blockFactory = BlockFactory.getBlockFactory();
+	
 	BlockDrop(Game game) {
 		this.game = game;
 	}
 
 	@Override
 	public void run() {
+		game.setCurBlock(blockFactory.newBlock(game.getGrid()));
 		Object key = game.getBlockKey();
 		while (true) {
 			Block curBlock = game.getCurBlock();
 			if (curBlock.moveDown()) {
 				game.fixBlock(curBlock);
-				game.brakeLine();
-				synchronized (key) {
-					System.out.println("notify");
-					key.notify();
-				}
-				continue;
+				game.breakLine();
+				//synchronized (key) {
+				//	System.out.println("notify");
+				//	key.notify();
+				//}
+				game.setCurBlock(blockFactory.newBlock(game.getGrid()));
 			}
 			try {
 				Thread.sleep(MILLISECOND_PER_FRAME*5);
@@ -129,7 +131,7 @@ class BlockDrop implements Runnable, GameSetting {
 }
 
 
-
+/*
 class NewBlock implements Runnable {
 	private Game game;
 	private BlockFactory blockFactory = BlockFactory.getBlockFactory();
@@ -153,3 +155,4 @@ class NewBlock implements Runnable {
 		}
 	}
 }
+*/

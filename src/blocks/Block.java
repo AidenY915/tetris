@@ -1,17 +1,20 @@
 package blocks;
 
+import java.awt.Color;
 import java.util.List;
 
 import tetris.GameSetting;
+import tetris.GridElement;
 
 public abstract class Block implements GameSetting { // 4곱 2 boolean 배열로 만들고 좌표는 좌상단 기준으로 해
 
 	protected boolean[][] area;
 	protected int x = WIDTH_BLOCK_NUM / 2 - 2;
 	protected int y = 0;
-	private List<List<Boolean>> grid;
+	private List<List<GridElement>> grid;
 	private boolean rotateToggle = true;
-	Block(List<List<Boolean>> grid) {
+	protected Color color;
+	Block(List<List<GridElement>> grid) {
 		this.grid = grid;
 	}
 	
@@ -22,7 +25,7 @@ public abstract class Block implements GameSetting { // 4곱 2 boolean 배열로
 			for(int j = 0; j < area[i].length; j++) {
 				if(!area[i][j]) continue;
 				System.out.println(i + " " + j);
-				if(grid.get(x+i).get(y+j+1)) return true;
+				if(grid.get(x+i).get(y+j+1).isOccupied()) return true;
 			}
 		}
 		return false;
@@ -42,7 +45,7 @@ public abstract class Block implements GameSetting { // 4곱 2 boolean 배열로
 			for (int j = 0; j < area[i].length; j++) {
 				if (!area[i][j])
 					continue;
-				if (grid.get(x + i + 1).get(y + j))
+				if (grid.get(x + i + 1).get(y + j).isOccupied())
 					return;
 			}
 		}
@@ -56,7 +59,7 @@ public abstract class Block implements GameSetting { // 4곱 2 boolean 배열로
 			for (int j = 0; j < area[i].length; j++) {
 				if (!area[i][j])
 					continue;
-				if (grid.get(x + i - 1).get(y + j))
+				if (grid.get(x + i - 1).get(y + j).isOccupied())
 					return;
 			}
 		}
@@ -78,6 +81,7 @@ public abstract class Block implements GameSetting { // 4곱 2 boolean 배열로
 			}
 		}
 		area = newArea;
+		//회전시 충돌발생하면 밀기 필요.
 		System.out.println("rightDown");
 	}
 	
@@ -89,6 +93,7 @@ public abstract class Block implements GameSetting { // 4곱 2 boolean 배열로
 			}
 		}
 		area = newArea;
+		//회전시 충돌발생하면 밀기 필요.
 		System.out.println("rightUp");
 	}
 	
@@ -116,5 +121,8 @@ public abstract class Block implements GameSetting { // 4곱 2 boolean 배열로
 
 	public void setY(int y) {
 		this.y = y;
+	}
+	public Color getColor() {
+		return color;
 	}
 }

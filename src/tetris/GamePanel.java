@@ -78,11 +78,13 @@ public class GamePanel extends JPanel implements GameSetting {
 		drawGrid(g, game.getGrid());
 	}
 	
-	private void drawGrid(Graphics g, List<List<Boolean>> grid) {
-		g.setColor(Color.RED);
+	private void drawGrid(Graphics g, List<List<GridElement>> grid) {
+		
 		for(int i = 0; i < grid.size(); i++) {
 			for(int j = 0; j < grid.get(i).size(); j++) {
-				if(!grid.get(i).get(j)) continue;
+				GridElement gridElement = grid.get(i).get(j); 
+				if(!gridElement.isOccupied()) continue;
+				g.setColor(gridElement.getColor());
 				int rectX = i*blockEdge;
 				int rectY = j*blockEdge;
 				g.fillRect(rectX, rectY, blockEdge, blockEdge);
@@ -92,7 +94,7 @@ public class GamePanel extends JPanel implements GameSetting {
 
 
 	private void drawBlock(Graphics g,Block block) {
-		g.setColor(Color.CYAN);
+		g.setColor(block.getColor());
 		
 		int x = block.getX();
 		int y = block.getY();
