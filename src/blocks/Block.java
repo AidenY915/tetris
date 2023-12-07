@@ -10,13 +10,28 @@ public abstract class Block implements GameSetting { // 4곱 2 boolean 배열로
 	protected int x = WIDTH_BLOCK_NUM / 2 - 2;
 	protected int y = 0;
 	private List<List<Boolean>> grid;
-	private boolean rotateToggle = false;
+	private boolean rotateToggle = true;
 	Block(List<List<Boolean>> grid) {
 		this.grid = grid;
 	}
+	
+	
+	private boolean isBlockCollided() {		//Block에 넣을까 말까
+		if(y == HEIGHT_BLOCK_NUM - area[0].length) return true;
+		for(int i = 0; i < area.length; i++) {
+			for(int j = 0; j < area[i].length; j++) {
+				if(!area[i][j]) continue;
+				System.out.println(i + " " + j);
+				if(grid.get(x+i).get(y+j+1)) return true;
+			}
+		}
+		return false;
+	}
 
-	public void moveDown() {
+	public boolean moveDown() {
+		if(isBlockCollided()) return true;
 		y++;
+		return false;
 		
 	}
 
@@ -52,23 +67,6 @@ public abstract class Block implements GameSetting { // 4곱 2 boolean 배열로
 		boolean[][] newArea = new boolean[area[0].length][area.length];
 		for (int i = 0; i < area[0].length; i++) { // i는 newArea 기준 x,
 			for (int j = 0; j < area.length; j++) { // 대각선 뒤집기
-				newArea[i][j] = area[j][i];
-			}
-		}
-		for (int i = 0; i < area[0].length; i++) { // 상하 뒤집기
-			for (int j = 0; j < area.length; j++) {
-				boolean tmp = newArea[i][j];
-				newArea[i][j] = newArea[i][newArea[i].length - 1 - j];
-				newArea[i][newArea[i].length - 1 - j] = tmp;
-			}
-		}
-		area = newArea;
-	}
-	
-	private void rotateRightUp() {
-		boolean[][] newArea = new boolean[area[0].length][area.length];
-		for (int i = 0; i < area[0].length; i++) { // i는 newArea 기준 x,
-			for (int j = 0; j < area.length; j++) { // 대각선 뒤집기
 				newArea[newArea.length-1-i][j] = area[j][i];
 			}
 		}
@@ -80,6 +78,18 @@ public abstract class Block implements GameSetting { // 4곱 2 boolean 배열로
 			}
 		}
 		area = newArea;
+		System.out.println("rightDown");
+	}
+	
+	private void rotateRightUp() {
+		boolean[][] newArea = new boolean[area[0].length][area.length];
+		for (int i = 0; i < area[0].length; i++) { // i는 newArea 기준 x,
+			for (int j = 0; j < area.length; j++) { // 대각선 뒤집기
+				newArea[newArea.length-1-i][j] = area[j][i];
+			}
+		}
+		area = newArea;
+		System.out.println("rightUp");
 	}
 	
 	public void rotate() {

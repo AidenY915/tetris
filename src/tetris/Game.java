@@ -30,6 +30,11 @@ public class Game extends Thread implements GameSetting {
 	@Override
 	public void run() {
 		executor.submit(new NewBlock(this));
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		executor.submit(new BlockDrop(this));
 	}
 
@@ -64,23 +69,7 @@ public class Game extends Thread implements GameSetting {
 		return grid;
 	}
 	
-	public boolean isBlockCollided(Block curBlock) {		//Block에 넣을까 말까
-		System.out.println("isBlock");
-		int x = curBlock.getX();
-		int y = curBlock.getY();
-		boolean[][] area = curBlock.getArea();
-		System.out.println("getArea");
-		System.out.println("getGrid");
-		if(y == HEIGHT_BLOCK_NUM - area[0].length) return true;
-		for(int i = 0; i < area.length; i++) {
-			for(int j = 0; j < area[i].length; j++) {
-				if(!area[i][j]) continue;
-				System.out.println(i + " " + j);
-				if(grid.get(x+i).get(y+j+1)) return true;
-			}
-		}
-		return false;
-	}
+	
 	
 	public void brakeLine() {
 		for(int i = 0; i < HEIGHT_BLOCK_NUM; i++) {
@@ -118,7 +107,7 @@ class BlockDrop implements Runnable, GameSetting {
 		Object key = game.getBlockKey();
 		while (true) {
 			Block curBlock = game.getCurBlock();
-			if (game.isBlockCollided(curBlock)) {
+			if (curBlock.moveDown()) {
 				game.fixBlock(curBlock);
 				game.brakeLine();
 				synchronized (key) {
@@ -126,7 +115,7 @@ class BlockDrop implements Runnable, GameSetting {
 					key.notify();
 				}
 				continue;
-			}curBlock.moveDown();
+			}
 			try {
 				Thread.sleep(MILLISECOND_PER_FRAME*5);
 			} catch (InterruptedException e) {

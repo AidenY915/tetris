@@ -30,9 +30,7 @@ class BlockMoveKeyListener implements KeyListener{
 			curBlock.moveLeft();
 		}else if(e.getKeyCode() == KeyEvent.VK_UP) {
 			curBlock.rotate();
-			System.out.println("rotate");
 		}else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-			if(!game.isBlockCollided(curBlock))
 			curBlock.moveDown();
 		}
 	}
